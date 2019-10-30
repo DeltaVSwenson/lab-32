@@ -1,6 +1,14 @@
 import React from 'react';
 
+import useSettings from '../settings/hook';
+
 export default function Form(props){
+  const settings = useSettings();
+
+  let shownNumber = e =>{
+    settings.setNumber(e.target.value); 
+  }
+  console.log(settings.numberOfItems);
   return(
     <div>
     <h3>Add Item</h3>
@@ -27,6 +35,10 @@ export default function Form(props){
       </label>
       <button>Add Item</button>
     </form>
+    <label>
+      Results Shown
+    <input type="number" onChange={shownNumber}></input>
+    </label>
   </div>
   )
 };

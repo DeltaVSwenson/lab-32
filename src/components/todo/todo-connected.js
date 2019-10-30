@@ -4,10 +4,14 @@ import Modal from '../modal';
 import Header from './header';
 import Form from './form'
 import './todo.scss';
+import { SettingsContext } from '../settings/settings'
 
 const todoAPI = 'https://api-js401.herokuapp.com/api/v1/todo';
 
+
 class ToDo extends React.Component {
+  static contextType = SettingsContext;
+
   constructor(props) {
     super(props);
     this.state = {
@@ -15,6 +19,7 @@ class ToDo extends React.Component {
       item: {},
       showDetails: false,
       details: {},
+
     };
   }
 
@@ -105,12 +110,12 @@ class ToDo extends React.Component {
     this.callAPI( todoAPI, 'GET', undefined, _updateState );
   };
 
-  componentDidMount = () => {
+  componentDidMount() {
     this.getTodoItems();
   }
 
   render() {
-
+console.log(this.context);
     return (
       <>
       <Header 
@@ -127,7 +132,7 @@ class ToDo extends React.Component {
 
           <div>
             <ul>
-              { this.state.todoList.map(item => (
+              { this.state.todoList.slice(0, this.context.numberOfItems).map(item => (
                 <li
                   className={`complete-${item.complete.toString()}`}
                   key={item._id}
