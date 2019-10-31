@@ -168,11 +168,11 @@ class ToDo extends React.Component {
             <div>
               <Auth capability="read">
                 <ul>
-                  { this.state.todoList.slice(0, this.context.numberOfItems).map(item => (
-                    <li
-                      className={`complete-${item.complete.toString()}`}
-                      key={item._id}
-                    >
+                {todoList.map(item => (
+                <li
+                  className={`complete-${item.complete.toString()}`}
+                  key={item._id}
+                >
                       <span onClick={() => this.toggleComplete(item._id)}>
                         {item.text}
                       </span>
