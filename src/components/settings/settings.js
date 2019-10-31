@@ -15,13 +15,13 @@ class SettingsProvider extends React.Component {
     }
   }
 
-  setNumber = (value) => {
-    this.setState({ numberOfItems : JSON.parse(value) });
-  }
+  setNumber = value => {
+    this.setState({ numberOfItems: JSON.parse(value) });
+  };
 
-  setDisplayComplete = (bool) => {
-    this.setState({ bool })
-  }
+  setDisplayComplete = value => {
+    this.setState({ displayComplete: value });
+  };
 
   render() {
     return (

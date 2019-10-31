@@ -3,6 +3,9 @@ import { When } from '../if';
 import Modal from '../modal';
 import Header from './header';
 import Form from './form'
+import Auth from '../auth/auth';
+import LoginProvider from '../auth/provider';
+import Login from '../auth/login';
 import './todo.scss';
 import { SettingsContext } from '../settings/settings'
 
@@ -19,6 +22,7 @@ class ToDo extends React.Component {
       item: {},
       showDetails: false,
       details: {},
+      pageNumber: 1
 
     };
   }
@@ -106,65 +110,121 @@ class ToDo extends React.Component {
   }
 
   getTodoItems = () => {
-    const _updateState = data => this.setState({ todoList: data.results });
-    this.callAPI( todoAPI, 'GET', undefined, _updateState );
+    const _updateState = data =>
+      this.setState({
+        todoList: data.results
+      });
+    this.callAPI(todoAPI, "GET", undefined, _updateState);
   };
 
   componentDidMount() {
     this.getTodoItems();
   }
+  increasePageNumber = () => {
+    this.setState(state => ({
+      pageNumber: state.pageNumber + 1
+    }));
+  };
 
+  decreasePageNumber = () => {
+    this.setState(state => ({
+      pageNumber: state.pageNumber - 1
+    }));
+  };
   render() {
-console.log(this.context);
+
+    let todoList = this.state.todoList;
+
+    if (!this.context.displayComplete) {
+      todoList = todoList.filter(item => !item.complete);
+    }
+
+    let { numberOfItems } = this.context;
+    let pageCount = Math.ceil(this.state.todoList.length / numberOfItems);
+    let pageNumber = Math.min(this.state.pageNumber, pageCount);
+    todoList = todoList.slice(
+      (pageNumber - 1) * numberOfItems,
+      pageNumber * numberOfItems
+    );
+
     return (
       <>
-      <Header 
-        todoList={this.state.todoList}
-      />
-      <section className="todo"></section>
-
-        <section className="todo">
-
-        <Form
-           addItem={this.addItem}
-           handleInputChange={this.handleInputChange}
-          />
-
-          <div>
-            <ul>
-              { this.state.todoList.slice(0, this.context.numberOfItems).map(item => (
-                <li
-                  className={`complete-${item.complete.toString()}`}
-                  key={item._id}
-                >
-                  <span onClick={() => this.toggleComplete(item._id)}>
-                    {item.text}
-                  </span>
-                  <button onClick={() => this.toggleDetails(item._id)}>
-                    Details
-                  </button>
-                  <button onClick={() => this.deleteItem(item._id)}>
-                    Delete
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        <When condition={this.state.showDetails}>
-          <Modal title="To Do Item" close={this.toggleDetails}>
-            <div className="todo-details">
-              <header>
-                <span>Assigned To: {this.state.details.assignee}</span>
-                <span>Due: {this.state.details.due}</span>
-              </header>
-              <div className="item">
-                {this.state.details.text}
-              </div>
+      <LoginProvider>
+        <Login
+        />
+        <Header 
+          todoList={this.state.todoList}
+        />
+        <section className="todo"></section>
+        <Auth>
+          
+          <section className="todo">
+          <Auth capability="create">
+          <Form
+            addItem={this.addItem}
+            handleInputChange={this.handleInputChange}
+            />
+          </Auth>
+            <div>
+              <Auth capability="read">
+                <ul>
+                  { this.state.todoList.slice(0, this.context.numberOfItems).map(item => (
+                    <li
+                      className={`complete-${item.complete.toString()}`}
+                      key={item._id}
+                    >
+                      <span onClick={() => this.toggleComplete(item._id)}>
+                        {item.text}
+                      </span>
+                      <button onClick={() => this.toggleDetails(item._id)}>
+                        Details
+                      </button>
+                      <Auth capability="delete">
+                      <button onClick={() => this.deleteItem(item._id)}>
+                        Delete
+                      </button>
+                      </Auth>
+                    </li>
+                  ))}
+                </ul>
+                <button
+              onClick={this.decreasePageNumber}
+              disabled={pageNumber <= 1}
+            >
+              Prev
+            </button>
+            <p>
+              Page {pageNumber} of {pageCount}
+            </p>
+            <button
+              onClick={this.increasePageNumber}
+              disabled={pageNumber >= pageCount}
+            >
+              Next
+            </button>
+            <p>
+              Results Per Page: {this.context.numberOfItems} of{" "}
+              {this.state.todoList.length}
+            </p>
+                </Auth>
             </div>
-          </Modal>
-        </When>
+          </section>
+
+          <When condition={this.state.showDetails}>
+            <Modal title="To Do Item" close={this.toggleDetails}>
+              <div className="todo-details">
+                <header>
+                  <span>Assigned To: {this.state.details.assignee}</span>
+                  <span>Due: {this.state.details.due}</span>
+                </header>
+                <div className="item">
+                  {this.state.details.text}
+                </div>
+              </div>
+            </Modal>
+          </When>
+          </Auth>
+        </LoginProvider>
       </>
     );
   }

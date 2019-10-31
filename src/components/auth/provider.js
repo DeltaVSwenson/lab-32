@@ -5,6 +5,8 @@ import jwt from 'jsonwebtoken';
 import LoginContext from './context';
 
 const API = process.env.REACT_APP_API;
+console.log(process.env);
+console.log(API);
 
 export default class LoginProvider extends React.Component{
   constructor(props){
@@ -22,6 +24,7 @@ export default class LoginProvider extends React.Component{
     fetch(`${API}/signin`,{
       mode:'cors',
       method: 'post',
+      cache: 'no-cache',
       headers: new Headers({
         'Authorization': `Basic ${btoa(`${username}:${password}`)}`,
       })
@@ -38,7 +41,7 @@ export default class LoginProvider extends React.Component{
     }
     catch{
       this.logout();
-      console.error(e)
+      console.error()
     }
   }
 
