@@ -2,7 +2,7 @@ import React from 'react';
 import cookie from 'react-cookies';
 import jwt from 'jsonwebtoken';
 
-import loginContext from './context';
+import LoginContext from './context';
 
 const API = process.env.REACT_APP_API;
 
